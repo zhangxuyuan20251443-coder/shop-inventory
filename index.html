@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shop Inventory Management System</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #657085;
+      --border: #dbe2ea;
+      --border-strong: #c8d3df;
+      --teal: #0f9b94;
+      --teal-dark: #087972;
+      --blue: #276bdc;
+      --green: #2e8b3c;
+      --green-soft: #e9f8e8;
+      --amber: #d97706;
+      --amber-soft: #fff3df;
+      --red: #dc2626;
+      --red-soft: #fff0f0;
+      --shadow: 0 8px 24px rgba(18, 31, 53, 0.07);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar {
+      position: sticky; top: 0; z-index: 5;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      padding: 16px 22px; background: rgba(255,255,255,.94);
+      border-bottom: 1px solid var(--border); backdrop-filter: blur(14px);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 42px; height: 42px; display: grid; place-items: center;
+      color: #fff; background: var(--teal); border-radius: 8px; font-weight: 900;
+    }
+    h1 { margin: 0; font-size: 24px; line-height: 1.1; letter-spacing: 0; }
+    .brand p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .workspace {
+      display: grid; grid-template-columns: 330px minmax(600px, 1fr) 330px;
+      gap: 16px; padding: 16px 20px 24px;
+    }
+    .rail { display: flex; flex-direction: column; gap: 14px; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow); }
+    .pad { padding: 18px; }
+    .panel-title { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; color: var(--teal-dark); }
+    .panel-title h2 { margin: 0; color: var(--text); font-size: 18px; }
+    form, .stack { display: flex; flex-direction: column; gap: 12px; }
+    label { display: flex; flex-direction: column; gap: 7px; color: #253149; font-size: 13px; font-weight: 700; }
+    input, select {
+      width: 100%; min-height: 38px; padding: 9px 11px; color: var(--text);
+      background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; outline: none;
+    }
+    input:focus, select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(15,155,148,.16); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn {
+      display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 8px;
+      border-radius: 6px; border: 1px solid transparent; padding: 9px 13px;
+      font-size: 14px; font-weight: 800; transition: .16s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .primary { color: #fff; background: var(--teal); }
+    .primary:hover { background: var(--teal-dark); }
+    .secondary { color: #253149; background: #fff; border-color: var(--border-strong); }
+    .success { color: var(--green); background: var(--green-soft); border-color: #bde6bd; }
+    .sell { color: var(--blue); background: #eef5ff; border-color: #c9dcff; }
+    .danger { color: var(--red); background: var(--red-soft); border-color: #ffd0d0; }
+    .message { min-height: 22px; color: var(--muted); font-size: 13px; font-weight: 700; }
+    .message.ok { color: var(--green); }
+    .message.bad { color: var(--red); }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .metric { padding: 14px; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+    .metric span { display: block; color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .metric strong { display: block; margin-top: 6px; font-size: 24px; }
+    .inventory-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px 0; }
+    .inventory-header h2 { margin: 0; font-size: 19px; }
+    .filters { display: flex; gap: 8px; min-width: 380px; }
+    .table-wrap { overflow-x: auto; padding: 14px 18px 18px; }
+    table { width: 100%; border-collapse: collapse; min-width: 820px; }
+    th, td { padding: 11px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0; }
+    tr:hover td { background: #f9fbfd; }
+    .name-cell { font-weight: 900; }
+    .tag { display: inline-flex; align-items: center; min-height: 24px; padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 900; }
+    .low { color: var(--amber); background: var(--amber-soft); }
+    .oktag { color: var(--green); background: var(--green-soft); }
+    .type { color: var(--blue); background: #eef5ff; }
+    .empty { padding: 36px 10px; text-align: center; color: var(--muted); }
+    .alert-list { display: flex; flex-direction: column; gap: 8px; }
+    .alert-item { padding: 10px; border: 1px solid #f2d49d; border-radius: 6px; background: var(--amber-soft); color: #7c3b00; font-size: 13px; font-weight: 800; }
+    .class-box { padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: #f9fbfd; }
+    .class-box strong { display: block; margin-bottom: 5px; }
+    .muted { margin: 0; color: var(--muted); font-size: 13px; }
+    .file-input { display: none; }
+    @media (max-width: 1180px) {
+      .workspace { grid-template-columns: 1fr; }
+      .filters { min-width: 0; width: 100%; }
+      .inventory-header { align-items: stretch; flex-direction: column; }
+    }
+    @media (max-width: 680px) {
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .toolbar { justify-content: flex-start; }
+      .workspace { padding: 12px; }
+      .summary-grid, .grid-2, .button-row, .filters { grid-template-columns: 1fr; display: grid; }
+      h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">C</div>
+      <div>
+        <h1>Shop Inventory Management System</h1>
+        <p>Project C dashboard for adding products, selling items, and generating stock reports.</p>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button class="btn secondary" id="exportBtn">Export JSON</button>
+      <button class="btn secondary" id="importBtn">Import JSON</button>
+      <button class="btn danger" id="resetBtn">Reset Demo</button>
+      <input class="file-input" id="fileInput" type="file" accept="application/json">
+    </div>
+  </div>
+
+  <main class="workspace">
+    <aside class="rail">
+      <section class="panel pad">
+        <div class="panel-title"><span>+</span><h2>Add Product</h2></div>
+        <form id="productForm">
+          <label>Name<input id="name" required placeholder="Notebook A5"></label>
+          <div class="grid-2">
+            <label>Category<select id="category">
+              <option>Electronics</option><option>Stationery</option><option>Food</option><option>Apparel</option><option>Other</option>
+            </select></label>
+            <label>Type<select id="type">
+              <option value="Product">General</option><option value="PerishableProduct">Perishable</option>
+            </select></label>
+          </div>
+          <div class="grid-2">
+            <label>Price<input id="price" type="number" min="0" step="0.01" required value="5.00"></label>
+            <label>Cost<input id="cost" type="number" min="0" step="0.01" required value="2.00"></label>
+          </div>
+          <div class="grid-2">
+            <label>Quantity<input id="quantity" type="number" min="0" step="1" required value="10"></label>
+            <label>Supplier<input id="supplier" required placeholder="Supplier name"></label>
+          </div>
+          <label>Note or expiry date<input id="note" placeholder="2026-06-30 or warranty note"></label>
+          <button class="btn primary" type="submit">Add New Product</button>
+          <div class="message" id="formMessage"></div>
+        </form>
+      </section>
+
+      <section class="panel pad stack">
+        <div class="panel-title"><span>*</span><h2>Stock Actions</h2></div>
+        <label>Selected product<select id="selectedProduct"></select></label>
+        <label>Amount<input id="actionAmount" type="number" min="1" step="1" value="1"></label>
+        <div class="button-row">
+          <button class="btn success" id="addStockBtn">Add Stock</button>
+          <button class="btn sell" id="sellBtn">Sell Item</button>
+        </div>
+        <button class="btn danger" id="deleteBtn">Delete Product</button>
+        <div class="message" id="actionMessage"></div>
+      </section>
+    </aside>
+
+    <section class="panel">
+      <div class="inventory-header">
+        <h2>Full Inventory</h2>
+        <div class="filters">
+          <input id="search" placeholder="Search by name or supplier">
+          <select id="filter">
+            <option value="all">All stock</option>
+            <option value="low">Low stock only</option>
+            <option value="perishable">Perishable only</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="summary-grid" id="summary"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th><th>Name</th><th>Category</th><th>Price</th><th>Qty</th><th>Supplier</th><th>Stock Value</th><th>Profit</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="rail">
+      <section class="panel pad">
+        <div class="panel-title"><span>!</span><h2>Low Stock Report</h2></div>
+        <div class="alert-list" id="lowStockList"></div>
+      </section>
+      <section class="panel pad stack">
+        <div class="panel-title"><span>#</span><h2>Class Structure</h2></div>
+        <div class="class-box"><strong>Product</strong><p class="muted">name, price, quantity, supplier, addStock(), sellItem(), calculateStockValue()</p></div>
+        <div class="class-box"><strong>PerishableProduct</strong><p class="muted">inherits Product and stores an expiry date.</p></div>
+        <div class="class-box"><strong>Inventory</strong><p class="muted">manages a collection of products and generates reports.</p></div>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const LOW_STOCK_LIMIT = 5;
+    const STORAGE_KEY = "eps-shop-inventory-pages";
+    const seedProducts = [
+      {id:"p1",name:"Wireless Mouse",category:"Electronics",type:"Product",price:25.99,cost:15.5,quantity:36,supplier:"Logitech",note:"2 years warranty",soldUnits:18},
+      {id:"p2",name:"USB-C Cable",category:"Electronics",type:"Product",price:8.99,cost:4.1,quantity:150,supplier:"Anker",note:"2027-06-30",soldUnits:41},
+      {id:"p3",name:"Ballpoint Pen Pack",category:"Stationery",type:"Product",price:1.2,cost:.5,quantity:4,supplier:"Bic",note:"-",soldUnits:60},
+      {id:"p4",name:"T-shirt (M)",category:"Apparel",type:"Product",price:15,cost:8,quantity:2,supplier:"FashionHub",note:"-",soldUnits:13},
+      {id:"p5",name:"Sandwich",category:"Food",type:"PerishableProduct",price:3.5,cost:1.75,quantity:5,supplier:"Campus Cafe",note:"2026-06-02",soldUnits:22}
+    ];
+    let products = loadProducts();
+
+    const $ = (id) => document.getElementById(id);
+    const money = (value) => "$" + Number(value).toFixed(2);
+    const clean = (value) => String(value || "").trim();
+    const isLow = (p) => Number(p.quantity) <= LOW_STOCK_LIMIT;
+    const stockValue = (p) => Number(p.price) * Number(p.quantity);
+    const profit = (p) => Math.max(0, Number(p.price) - Number(p.cost || 0)) * Number(p.soldUnits || 0);
+
+    function loadProducts() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Array.isArray(stored) && stored.length ? stored : seedProducts.slice();
+      } catch {
+        return seedProducts.slice();
+      }
+    }
+    function saveProducts() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+    }
+    function setMessage(id, text, ok = true) {
+      const el = $(id);
+      el.textContent = text;
+      el.className = "message " + (ok ? "ok" : "bad");
+    }
+    function selectedId() { return $("selectedProduct").value; }
+    function selectedProduct() { return products.find((p) => p.id === selectedId()); }
+
+    function render() {
+      saveProducts();
+      const query = clean($("search").value).toLowerCase();
+      const filter = $("filter").value;
+      const visible = products.filter((p) => {
+        const matchesText = !query || p.name.toLowerCase().includes(query) || p.supplier.toLowerCase().includes(query);
+        const matchesFilter = filter === "all" || (filter === "low" && isLow(p)) || (filter === "perishable" && p.type === "PerishableProduct");
+        return matchesText && matchesFilter;
+      });
+      const report = products.reduce((acc, p) => {
+        acc.items += 1; acc.qty += Number(p.quantity); acc.value += stockValue(p); acc.profit += profit(p); acc.low += isLow(p) ? 1 : 0;
+        return acc;
+      }, {items:0, qty:0, value:0, profit:0, low:0});
+      $("summary").innerHTML = [
+        ["Products", report.items],
+        ["Units in stock", report.qty],
+        ["Stock value", money(report.value)],
+        ["Estimated profit", money(report.profit)]
+      ].map(([label, value]) => `<div class="metric"><span>${label}</span><strong>${value}</strong></div>`).join("");
+
+      $("inventoryBody").innerHTML = visible.length ? visible.map((p, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td><div class="name-cell">${p.name}</div><div class="muted">${p.type === "PerishableProduct" ? "Expiry: " + (p.note || "not set") : (p.note || "-")}</div></td>
+          <td><span class="tag type">${p.category}</span></td>
+          <td>${money(p.price)}</td>
+          <td>${p.quantity}</td>
+          <td>${p.supplier}</td>
+          <td>${money(stockValue(p))}</td>
+          <td>${money(profit(p))}</td>
+          <td><span class="tag ${isLow(p) ? "low" : "oktag"}">${isLow(p) ? "Low stock" : "In stock"}</span></td>
+        </tr>`).join("") : `<tr><td colspan="9"><div class="empty">No products match the current filter.</div></td></tr>`;
+
+      const current = selectedId();
+      $("selectedProduct").innerHTML = products.map((p) => `<option value="${p.id}">${p.name} (${p.quantity})</option>`).join("");
+      if (products.some((p) => p.id === current)) $("selectedProduct").value = current;
+
+      const lowProducts = products.filter(isLow);
+      $("lowStockList").innerHTML = lowProducts.length
+        ? lowProducts.map((p) => `<div class="alert-item">${p.name}: ${p.quantity} remaining. Supplier: ${p.supplier}</div>`).join("")
+        : `<p class="muted">No products are currently low in stock.</p>`;
+    }
+
+    $("productForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const product = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        name: clean($("name").value),
+        category: $("category").value,
+        type: $("type").value,
+        price: Number($("price").value),
+        cost: Number($("cost").value),
+        quantity: Number($("quantity").value),
+        supplier: clean($("supplier").value),
+        note: clean($("note").value) || "-",
+        soldUnits: 0
+      };
+      if (!product.name || !product.supplier) return setMessage("formMessage", "Name and supplier cannot be blank.", false);
+      if (products.some((p) => p.name.toLowerCase() === product.name.toLowerCase())) return setMessage("formMessage", "A product with this name already exists.", false);
+      if (product.price < 0 || product.cost < 0 || product.quantity < 0) return setMessage("formMessage", "Price, cost and quantity cannot be negative.", false);
+      products = [product, ...products];
+      event.target.reset();
+      $("price").value = "5.00"; $("cost").value = "2.00"; $("quantity").value = "10";
+      setMessage("formMessage", "Product added successfully.");
+      render();
+    });
+
+    $("addStockBtn").addEventListener("click", () => {
+      const p = selectedProduct();
+      const amount = Number($("actionAmount").value);
+      if (!p || amount <= 0) return setMessage("actionMessage", "Choose a product and enter an amount greater than zero.", false);
+      p.quantity += amount;
+      setMessage("actionMessage", `${amount} units added to ${p.name}.`);
+      render();
+    });
+    $("sellBtn").addEventListener("click", () => {
+      const p = selectedProduct();
+      const amount = Number($("actionAmount").value);
+      if (!p || amount <= 0) return setMessage("actionMessage", "Choose a product and enter an amount greater than zero.", false);
+      if (amount > p.quantity) return setMessage("actionMessage", "Sale rejected because stock would become negative.", false);
+      p.quantity -= amount;
+      p.soldUnits = Number(p.soldUnits || 0) + amount;
+      setMessage("actionMessage", isLow(p) ? `Sale completed. Low stock alert for ${p.name}.` : `Sale completed for ${p.name}.`);
+      render();
+    });
+    $("deleteBtn").addEventListener("click", () => {
+      const p = selectedProduct();
+      if (!p) return setMessage("actionMessage", "No product selected.", false);
+      products = products.filter((item) => item.id !== p.id);
+      setMessage("actionMessage", `${p.name} removed.`);
+      render();
+    });
+    $("resetBtn").addEventListener("click", () => {
+      products = seedProducts.slice();
+      setMessage("actionMessage", "Demo data restored.");
+      render();
+    });
+    $("exportBtn").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(products, null, 2)], {type: "application/json"});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url; link.download = "inventory-data.json"; link.click();
+      URL.revokeObjectURL(url);
+    });
+    $("importBtn").addEventListener("click", () => $("fileInput").click());
+    $("fileInput").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (!Array.isArray(data)) throw new Error("invalid");
+        products = data;
+        setMessage("actionMessage", "Inventory data imported.");
+        render();
+      } catch {
+        setMessage("actionMessage", "Import failed. Please choose a valid JSON file.", false);
+      }
+    });
+    $("search").addEventListener("input", render);
+    $("filter").addEventListener("change", render);
+    render();
+  </script>
+</body>
+</html>
