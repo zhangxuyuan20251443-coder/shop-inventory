@@ -42,6 +42,7 @@
     }
     h1 { margin: 0; font-size: 24px; line-height: 1.1; letter-spacing: 0; }
     .brand p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .brand .group-name { color: var(--teal-dark); font-weight: 800; }
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
     .workspace {
       display: grid; grid-template-columns: 330px minmax(600px, 1fr) 330px;
@@ -100,6 +101,10 @@
     .class-box strong { display: block; margin-bottom: 5px; }
     .muted { margin: 0; color: var(--muted); font-size: 13px; }
     .file-input { display: none; }
+    .member-badge { position: fixed; right: 18px; bottom: 18px; z-index: 8; display: flex; flex-direction: column; gap: 3px; max-width: min(320px, calc(100vw - 36px)); padding: 10px 12px; color: var(--text); background: rgba(255,255,255,.94); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow); backdrop-filter: blur(12px); }
+    .member-badge span { color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+    .member-badge strong { font-size: 13px; line-height: 1.25; }
+    .member-badge small { color: var(--muted); font-size: 12px; line-height: 1.25; }
     @media (max-width: 1180px) {
       .workspace { grid-template-columns: 1fr; }
       .filters { min-width: 0; width: 100%; }
@@ -110,6 +115,7 @@
       .toolbar { justify-content: flex-start; }
       .workspace { padding: 12px; }
       .summary-grid, .grid-2, .button-row, .filters { grid-template-columns: 1fr; display: grid; }
+      .member-badge { right: 12px; bottom: 12px; }
       h1 { font-size: 20px; }
     }
   </style>
@@ -121,6 +127,7 @@
       <div>
         <h1>Shop Inventory Management System</h1>
         <p>Project C dashboard for adding products, selling items, and generating stock reports.</p>
+        <p class="group-name">202502W1 C1 Group</p>
       </div>
     </div>
     <div class="toolbar">
@@ -210,6 +217,11 @@
       </section>
     </aside>
   </main>
+  <div class="member-badge">
+    <span>Group Members</span>
+    <strong>Pan Xiaoyang · Shen Yiyao · Zhang Xuyuan</strong>
+    <small>潘晓阳 · 沈怡瑶 · 张栩源</small>
+  </div>
 
   <script>
     const LOW_STOCK_LIMIT = 5;
